@@ -29,7 +29,7 @@ async function retweet(page) {
 }
 
 async function tweet(page) {
-  const content = getFrends(5)
+  const content = getFrends(3)
   await page.waitForSelector('div[data-testid="tweetTextarea_0"]', { visible: true })
   await page.type('div[data-testid="tweetTextarea_0"]', content + ' ')
   await page.waitForTimeout(1000)
@@ -47,6 +47,7 @@ async function follow(page, id) {
 
 async function goto(page, link) {
   await page.goto(link)
+  await page.waitForTimeout(1000)
 }
 
 async function twitter(browser, page) {
