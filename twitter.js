@@ -16,14 +16,17 @@ function getFrends(num) {
 
 async function like(page) {
   await page.waitForSelector('div[data-testid="like"]', { visible: true })
+  await page.waitForTimeout(1000)
   await page.click('div[data-testid="like"]')
   await page.waitForTimeout(1000)
 }
 
 async function retweet(page) {
   await page.waitForSelector('div[data-testid="retweet"]', { visible: true })
+  await page.waitForTimeout(1000)
   await page.click('div[data-testid="retweet"]')
   await page.waitForSelector('div[data-testid="retweetConfirm"]', { visible: true })
+  await page.waitForTimeout(1000)
   await page.click('div[data-testid="retweetConfirm"]')
   await page.waitForTimeout(1000)
 }
@@ -47,7 +50,7 @@ async function follow(page, id) {
 
 async function goto(page, link) {
   await page.goto(link)
-  await page.waitForTimeout(1000)
+  await page.waitForTimeout(2000)
 }
 
 async function twitter(browser, page) {
