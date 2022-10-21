@@ -1,5 +1,4 @@
 const fs = require('fs');
-const { actionList } = require('./twitter.json');
 
 const twitterData = fs.readFileSync('./twitter.txt');
 const twitterList = twitterData.toString().split('\r\n');
@@ -53,9 +52,9 @@ async function goto(page, link) {
   await page.waitForTimeout(2000)
 }
 
-async function twitter(browser, page) {
-  for (let i = 0; i < actionList.length; i++) {
-    const actionItem = actionList[i]
+async function twitter(browser, page, curAcrionList) {
+  for (let i = 0; i < curAcrionList.length; i++) {
+    const actionItem = curAcrionList[i]
     const { action, value } = actionItem
     switch (action) {
       case 'like':

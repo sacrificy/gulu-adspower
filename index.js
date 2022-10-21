@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer-core');
 const axios = require('axios');
 const { adsApi } = require('./utils');
 const { twitter } = require('./twitter');
-const { start, end, close } = require('./twitter.json');
+const { start, end, close, actionList } = require('./twitter.json');
 
 async function getAdsIsActive() {
   let isActive = false;
@@ -48,17 +48,21 @@ async function main() {
   if (!isAdsActive) return;
 
   // 启动浏览器
-  for (let i = start; i <= end; i++) {
-    const [browser, page] = await getBrowser(i);
-    try {
-      await twitter(browser, page);
-      console.log(`浏览器${i}:twitter操作成功`);
-      if (close) {
-        await browser.close();
+  for (let i = 0; i < actionList.length; i++) {
+    let curAcrionList = actionList[i];
+    for (let j = start; j <= end; j++) {
+      const [browser, page] = await getBrowser(j);
+      try {
+        await twitter(browser, page, curAcrionList);
+        console.log(`浏览器${j}:twitter操作成功`);
+        if (close) {
+          await browser.close();
+        }
+      } catch (error) {
+        console.log(`浏览器${j}:twitter操作失败`);
       }
-    } catch (error) {
-      console.log(`浏览器${i}:twitter操作失败`);
     }
+
   }
 }
 main()
