@@ -27,7 +27,7 @@ async function getBrowser(i) {
   let browser = null;
   let page = null;
   try {
-    const { data = {} } = await axios.get(adsApi.start, { params: { serial_number: i } });
+    const { data = {} } = await axios.get(adsApi.start, { params: { serial_number: i, open_tabs: 1 } });
     const puppeteerWs = data?.data?.ws?.puppeteer;
     browser = await puppeteer.connect({
       browserWSEndpoint: puppeteerWs
