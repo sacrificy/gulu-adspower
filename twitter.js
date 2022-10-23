@@ -50,7 +50,7 @@ async function follow(page, id) {
 }
 
 async function goto(page, link) {
-  await page.goto(link)
+  await page.goto(link, { waitUntil: 'networkidle2' })
   await page.waitForTimeout(2000)
   const url = page.url()
   if (url === 'https://twitter.com/account/access') {
@@ -61,7 +61,7 @@ async function goto(page, link) {
       page.click('input[type="submit"]'),
     ]);
     await page.waitForTimeout(2000)
-    await page.goto(link)
+    await page.goto(link, { waitUntil: 'networkidle2' })
   }
   await page.reload() //special case
   await page.waitForTimeout(2000)
