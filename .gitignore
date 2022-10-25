@@ -37,3 +37,4 @@ yarn-error.log*
 /account
 config.json
 /twitter/block.txt
+wallet.txt

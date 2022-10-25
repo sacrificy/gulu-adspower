@@ -1,4 +1,3 @@
-const a = require('./config.json');
 const puppeteer = require('puppeteer-core');
 const axios = require('axios');
 const { adsApi } = require('./utils');
