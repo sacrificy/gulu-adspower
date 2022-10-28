@@ -31,10 +31,6 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# vercel
-.vercel
-
-/account
 config.json
-/twitter/block.txt
 wallet.txt
+twitter.json
