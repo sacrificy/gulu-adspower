@@ -11,12 +11,14 @@ const walletList = walletData.toString().split('\r\n');
 
 function getContent(num, value) {
   const commentIndex = parseInt(Math.random() * (commentList.length), 10)
+  const walletIndex = parseInt(Math.random() * (walletList.length), 10)
+
   let str = '';
   if (!value) {
     str = str + commentList[commentIndex] + ' '
   }
   if (value === 'wallet') {
-    str = str + walletList[commentIndex].split(':')[0] + ' '
+    str = str + walletList[walletIndex].split(':')[0] + ' '
   }
   for (let i = 0; i < num; i++) {
     const twitterIndex = parseInt(Math.random() * (twitterList.length), 10)
