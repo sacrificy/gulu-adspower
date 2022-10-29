@@ -6,9 +6,18 @@ const twitterList = twitterData.toString().split('\r\n');
 const commentData = fs.readFileSync('./comment.txt');
 const commentList = commentData.toString().split('\r\n');
 
-function getFrends(num) {
+const walletData = fs.readFileSync('./wallet.txt');
+const walletList = walletData.toString().split('\r\n');
+
+function getContent(num, value) {
   const commentIndex = parseInt(Math.random() * (commentList.length), 10)
-  let str = commentList[commentIndex] + ' '
+  let str = '';
+  if (!value) {
+    str = str + commentList[commentIndex] + ' '
+  }
+  if (value === 'wallet') {
+    str = str + walletList[commentIndex].split(':')[0] + ' '
+  }
   for (let i = 0; i < num; i++) {
     const twitterIndex = parseInt(Math.random() * (twitterList.length), 10)
     const name = twitterList[twitterIndex]
@@ -32,8 +41,8 @@ async function retweet(page) {
   await page.waitForTimeout(2000)
 }
 
-async function tweet(page) {
-  const content = getFrends(3)
+async function tweet(page, value) {
+  const content = getContent(3, value)
   await page.waitForSelector('div[data-testid="tweetTextarea_0"]', { visible: true })
   await page.type('div[data-testid="tweetTextarea_0"]', content + ' ')
   await page.waitForTimeout(2000)
@@ -70,7 +79,7 @@ async function goto(page, link) {
 async function twitter(browser, page, curAcrionList) {
   for (let i = 0; i < curAcrionList.length; i++) {
     const actionItem = curAcrionList[i]
-    const { action, value } = actionItem
+    const { action, value = '' } = actionItem
     switch (action) {
       case 'like':
         await like(page)
@@ -79,7 +88,7 @@ async function twitter(browser, page, curAcrionList) {
         await retweet(page)
         break;
       case 'tweet':
-        await tweet(page)
+        await tweet(page, value)
         break;
       case 'follow':
         await follow(page, value)
