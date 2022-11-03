@@ -2,6 +2,8 @@ const puppeteer = require('puppeteer-core');
 const axios = require('axios');
 const { adsApi } = require('./utils');
 const { TOTP } = require('./util.js');
+const fs = require('fs');
+const { faker } = require('@faker-js/faker');
 
 const discotdData = fs.readFileSync('./discord.txt');
 const discordList = discotdData.toString().split('\r\n');
@@ -22,6 +24,7 @@ async function getAdsIsActive() {
   return isActive;
 }
 
+const sleep = (time = 1000) => new Promise((resolve, reject) => { setTimeout(resolve, time) });
 
 // 启动浏览器
 async function getBrowser(i) {
@@ -34,11 +37,12 @@ async function getBrowser(i) {
       browserWSEndpoint: puppeteerWs
     });
     page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 1080 });
+    await page.setViewport({ width: 1920, height: 930 });
     console.log(`浏览器${i}:启动成功`);
   } catch (error) {
     console.log(error)
     console.log(`浏览器${i}:启动失败`);
+    await sleep(5000);
   }
   return [browser, page];
 }
@@ -80,31 +84,115 @@ const loginDiscord = async (i) => {
     await page.type('input[name="email"]', username);
     await page.type('input[name="password"]', password);
     await page.click('button[type="submit"]');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(5000);
     // await page.solveRecaptchas();
+    // const frames = page.frames();
+    const frames = page.frames().filter(frame => frame.url().includes('hcaptcha'));
+    // console.log(frame.url())
+    // frames.map(item=>{console.log(item.url())})
+    // const captcha = await page.waitForSelector('div#checkbox', { visible: true });
+    // await captcha.click();
+    await frames[frames.length - 1].click('div#checkbox')
     await page.waitForSelector(
-      'input[placeholder="6-digit authentication code/8-digit backup code"]',
-      { timeout: 0 }
+      'input[placeholder^="6"]',
+      { timeout: 0, visible: true }
     );
     await page.type(
-      'input[placeholder="6-digit authentication code/8-digit backup code"]',
+      'input[placeholder^="6"]',
       totpGenerator.getToken()
     );
     await Promise.all([
-      await page.keyboard.press('Enter'),
-      page.waitForNavigation(),
+      page.keyboard.press('Enter'),
+      page.waitForNavigation({ waitUntil: "networkidle2" }),
     ]);
     // }
+    const setting = await page.waitForSelector('button[aria-label="User Settings"],button[aria-label="用户设置"]');
     await page.waitForTimeout(1000)
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(1000)
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(1000)
+    await setting.click();
+    const response = await page.waitForResponse((response) => {
+      return response.url().includes("profile")
+    });
+    const profile = await response.json()
+    fs.appendFileSync('discordProfile.txt', `${i}----${profile.user.username + '#' + profile.user.discriminator}----${profile.user.id}` + '\r\n')
     console.log(i, username, 'success')
+    await browser.close()
   } catch (error) {
     console.log(i, username, 'fail')
     console.log(error)
     // fs.appendFileSync('failLogin.txt', accountItem + '\r\n')
   }
-  // await browser.close()
 };
 
+
+async function invite(i, inviteLink) {
+  console.log(i, 'start')
+  const [browser, page] = await getBrowser(i)
+  try {
+    await page.goto(inviteLink);
+    await page.waitForTimeout(1000)
+    await page.waitForSelector('section button', { visible: true })
+    await page.click('section button')
+    const response = await page.waitForResponse((response) => {
+      return response.url().startsWith("https://discord.com/api/v9/invites")
+    });
+    if (response.status() === 200) {
+      await page.waitForTimeout(2000)
+      // await browser.close()
+      // await page.solveRecaptchas();
+    }
+    console.log(i, "end")
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const changeName = async (i) => {
+  console.log(i, 'start')
+  const accountItem = discordList[i - 1]
+  // 格式化账密信息
+  let [
+    username,
+    mailPassword,
+    password,
+    googleSecret,
+    discordToken,
+  ] = accountItem.split('----');
+  const [browser, page] = await launchChrome(i)
+  try {
+    await page.goto('https://discord.com/channels/@me')
+    const setting = await page.waitForSelector('button[aria-label="User Settings"],button[aria-label="用户设置"]');
+    await page.waitForTimeout(1000)
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(1000)
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(1000)
+    await setting.click();
+
+    const editName = await page.waitForSelector('button[aria-label="Edit username"],button[aria-label="编辑用户名"]');
+    await editName.click();
+    const inputName = await page.waitForSelector('input[name="username"]');
+    await inputName.type(faker.name.fullName());
+    const inputPassword = await page.waitForSelector('input[type="password"]');
+    await inputPassword.type(password);
+    const submit = await page.waitForSelector('input[type="submit"]');
+    await submit.click();
+
+    const response = await page.waitForResponse((response) => {
+      return response.url().includes("users")
+    });
+    const users = await response.json()
+    fs.appendFileSync('discordProfile.txt', `${i}----${users.username + '#' + users.discriminator}----${users.id}----${users.token}` + '\r\n')
+    console.log(i, 'success')
+    await browser.close()
+  } catch (error) {
+    console.log(i, 'fail')
+    console.log(error)
+  }
+};
 
 async function main() {
   // 检测AdsPower是否启动
@@ -112,10 +200,35 @@ async function main() {
   if (!isAdsActive) return;
 
   // 启动浏览器
-  for (let i = 1; i <= 2; i++) {
+  for (let i = 134; i <= 151; i++) {
     await loginDiscord(i)
   }
 }
-main()
 
+async function invite1() {
+  // 检测AdsPower是否启动
+  const isAdsActive = await getAdsIsActive();
+  if (!isAdsActive) return;
+
+  // 启动浏览器
+  for (let i = 8; i <= 10; i++) {
+    await invite(i, "https://discord.gg/zmduVYms")
+  }
+}
+
+async function changeName1() {
+  // 检测AdsPower是否启动
+  const isAdsActive = await getAdsIsActive();
+  if (!isAdsActive) return;
+
+  // 启动浏览器
+  for (let i = 8; i <= 10; i++) {
+    await changeName(i)
+  }
+}
+
+
+// invite1()
+// main()
+// changeName1()
 
