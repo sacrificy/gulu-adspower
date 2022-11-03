@@ -185,7 +185,7 @@ const changeName = async (i) => {
       return response.url().includes("users")
     });
     const users = await response.json()
-    fs.appendFileSync('discordProfile.txt', `${i}----${users.username + '#' + users.discriminator}----${users.id}----${users.token}` + '\r\n')
+    fs.appendFileSync('discordProfile.txt', `${i}----${users.username + '#' + users.discriminator}----${users.phone}----${users.id}----${users.token}` + '\r\n')
     console.log(i, 'success')
     await browser.close()
   } catch (error) {
