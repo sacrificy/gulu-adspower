@@ -1,12 +1,12 @@
 const fs = require('fs');
 
-const twitterData = fs.readFileSync('./twitter.txt');
+const twitterData = fs.readFileSync('./config/twitter.txt');
 const twitterList = twitterData.toString().split('\r\n');
 
-const commentData = fs.readFileSync('./comment.txt');
+const commentData = fs.readFileSync('./config/comment.txt');
 const commentList = commentData.toString().split('\r\n');
 
-const walletData = fs.readFileSync('./wallet.txt');
+const walletData = fs.readFileSync('./config/wallet.txt');
 const walletList = walletData.toString().split('\r\n');
 
 function getContent(num, value) {

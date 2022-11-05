@@ -1,8 +1,8 @@
 const puppeteer = require('puppeteer-core');
 const axios = require('axios');
-const { adsApi } = require('./utils');
+const { adsApi } = require('./util');
 const { twitter } = require('./twitter');
-const { start, end, close, actionList } = require('./twitter.json');
+const { start, end, close, actionList } = require('./config/twitter.json');
 
 async function getAdsIsActive() {
   let isActive = false;

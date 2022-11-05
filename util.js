@@ -1,4 +1,5 @@
 const JsSHA = require('jssha/dist/sha1');
+const { adsPrefix } = require('./config.json');
 
 const decToHex = (dec) => dec.toString(16);
 const hexToDec = (hex) => parseInt(hex, 16);
@@ -62,6 +63,14 @@ class TOTP {
   getStepSeconds = () => this.stepSeconds;
 }
 
+const adsApi = {
+  status: adsPrefix + '/status',
+  start: adsPrefix + '/api/v1/browser/start',
+  stop: adsPrefix + '/api/v1/browser/stop',
+  active: adsPrefix + '/api/v1/browser/active',
+}
+
 module.exports = {
-  TOTP: TOTP
+  TOTP: TOTP,
+  adsApi: adsApi
 };

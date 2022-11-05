@@ -1,11 +1,10 @@
 const puppeteer = require('puppeteer-core');
 const axios = require('axios');
-const { adsApi } = require('./utils');
-const { TOTP } = require('./util.js');
+const { TOTP, adsApi } = require('./util.js');
 const fs = require('fs');
 const { faker } = require('@faker-js/faker');
 
-const discotdData = fs.readFileSync('./discord.txt');
+const discotdData = fs.readFileSync('./config/discord.txt');
 const discordList = discotdData.toString().split('\r\n');
 
 async function getAdsIsActive() {
