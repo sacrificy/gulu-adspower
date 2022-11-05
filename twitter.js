@@ -14,9 +14,9 @@ function getContent(num, value) {
   const walletIndex = parseInt(Math.random() * (walletList.length), 10)
 
   let str = '';
-  if (!value) {
-    str = str + commentList[commentIndex] + ' '
-  }
+  // if (!value) {
+  //   str = str + commentList[commentIndex] + ' '
+  // }
   if (value === 'wallet') {
     str = str + walletList[walletIndex].split(':')[0] + ' '
   }

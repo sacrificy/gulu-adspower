@@ -20,6 +20,7 @@ async function getAdsIsActive() {
   return isActive;
 }
 
+const sleep = (time = 1000) => new Promise((resolve, reject) => { setTimeout(resolve, time) });
 
 // 启动浏览器
 async function getBrowser(i) {
@@ -37,6 +38,7 @@ async function getBrowser(i) {
   } catch (error) {
     console.log(error)
     console.log(`浏览器${i}:启动失败`);
+    await sleep(5000);
   }
   return [browser, page];
 }

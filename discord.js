@@ -106,18 +106,18 @@ const loginDiscord = async (i) => {
       page.waitForNavigation({ waitUntil: "networkidle2" }),
     ]);
     // }
-    const setting = await page.waitForSelector('button[aria-label="User Settings"],button[aria-label="用户设置"]');
+    // const setting = await page.waitForSelector('button[aria-label="User Settings"],button[aria-label="用户设置"]');
     await page.waitForTimeout(1000)
-    await page.keyboard.press('Escape')
-    await page.waitForTimeout(1000)
-    await page.keyboard.press('Escape')
-    await page.waitForTimeout(1000)
-    await setting.click();
-    const response = await page.waitForResponse((response) => {
-      return response.url().includes("profile")
-    });
-    const profile = await response.json()
-    fs.appendFileSync('discordProfile.txt', `${i}----${profile.user.username + '#' + profile.user.discriminator}----${profile.user.id}` + '\r\n')
+    // await page.keyboard.press('Escape')
+    // await page.waitForTimeout(1000)
+    // await page.keyboard.press('Escape')
+    // await page.waitForTimeout(1000)
+    // await setting.click();
+    // const response = await page.waitForResponse((response) => {
+    //   return response.url().includes("profile")
+    // });
+    // const profile = await response.json()
+    // fs.appendFileSync('discordProfile.txt', `${i}----${profile.user.username + '#' + profile.user.discriminator}----${profile.user.id}` + '\r\n')
     console.log(i, username, 'success')
     await browser.close()
   } catch (error) {
@@ -161,30 +161,44 @@ const changeName = async (i) => {
     googleSecret,
     discordToken,
   ] = accountItem.split('----');
-  const [browser, page] = await launchChrome(i)
+  const [browser, page] = await getBrowser(i)
   try {
     await page.goto('https://discord.com/channels/@me')
+    await page.waitForSelector('button[aria-label="User Settings"],button[aria-label="用户设置"]');
+    await page.waitForTimeout(1000)
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(1000)
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(1000)
     const setting = await page.waitForSelector('button[aria-label="User Settings"],button[aria-label="用户设置"]');
-    await page.waitForTimeout(1000)
-    await page.keyboard.press('Escape')
-    await page.waitForTimeout(1000)
-    await page.keyboard.press('Escape')
-    await page.waitForTimeout(1000)
     await setting.click();
 
-    const editName = await page.waitForSelector('button[aria-label="Edit username"],button[aria-label="编辑用户名"]');
+    await page.waitForTimeout(1000)
+    const editName = await page.waitForSelector('button[aria-label="Edit username"],button[aria-label="编辑用户名"]', { visible: true });
     await editName.click();
     const inputName = await page.waitForSelector('input[name="username"]');
-    await inputName.type(faker.name.fullName());
+    await inputName.click();
+    await page.keyboard.down('Control');
+    await page.keyboard.press('KeyA');
+    await page.keyboard.up('Control');
+    await page.keyboard.press('Backspace');
+    await page.waitForTimeout(1000);
+    await inputName.type(faker.name.firstName());
     const inputPassword = await page.waitForSelector('input[type="password"]');
     await inputPassword.type(password);
-    const submit = await page.waitForSelector('input[type="submit"]');
-    await submit.click();
+    await page.waitForTimeout(1000)
+    // await page.keyboard.press('Enter')
 
-    const response = await page.waitForResponse((response) => {
-      return response.url().includes("users")
-    });
+    const [response] = await Promise.all([
+      page.waitForResponse(res => res.url().includes("users")),
+      page.keyboard.press('Enter'),
+    ]);
+
+    // const response = await page.waitForResponse((response) => {
+    //   return response.url().includes("users")
+    // });
     const users = await response.json()
+    console.log(users)
     fs.appendFileSync('discordProfile.txt', `${i}----${users.username + '#' + users.discriminator}----${users.phone}----${users.id}----${users.token}` + '\r\n')
     console.log(i, 'success')
     await browser.close()
@@ -200,19 +214,20 @@ async function main() {
   if (!isAdsActive) return;
 
   // 启动浏览器
-  for (let i = 134; i <= 151; i++) {
+  for (let i = 27; i <= 32; i++) {
     await loginDiscord(i)
   }
 }
 
+// 进频道
 async function invite1() {
   // 检测AdsPower是否启动
   const isAdsActive = await getAdsIsActive();
   if (!isAdsActive) return;
 
   // 启动浏览器
-  for (let i = 8; i <= 10; i++) {
-    await invite(i, "https://discord.gg/zmduVYms")
+  for (let i = 18; i <= 35; i++) {
+    await invite(i, "https://discord.gg/mKQGwXXu")
   }
 }
 
@@ -222,13 +237,17 @@ async function changeName1() {
   if (!isAdsActive) return;
 
   // 启动浏览器
-  for (let i = 8; i <= 10; i++) {
+  // for (let i = 31; i <= 50; i++) {
+  //   await changeName(i)
+  // }
+
+  for (let i of [42, 43, 47]) {
     await changeName(i)
   }
 }
 
 
-// invite1()
+invite1()
 // main()
 // changeName1()
 
