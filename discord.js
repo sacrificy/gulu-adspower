@@ -4,6 +4,7 @@ const { TOTP, adsApi } = require('./util.js');
 const fs = require('fs');
 const { faker } = require('@faker-js/faker');
 
+
 const discotdData = fs.readFileSync('./config/discord.txt');
 const discordList = discotdData.toString().split('\r\n');
 
@@ -86,12 +87,27 @@ const loginDiscord = async (i) => {
     await page.waitForTimeout(5000);
     // await page.solveRecaptchas();
     // const frames = page.frames();
-    const frames = page.frames().filter(frame => frame.url().includes('hcaptcha'));
+    let hcaptcha = null;
+    for (let frame of page.frames()) {
+      if (frame.url().includes('hcaptcha')) {
+        try {
+          const checkbox = await frame.waitForSelector('div#checkbox', { timeout: 10000 })
+          console.log(checkbox)
+          if (checkbox) {
+            hcaptcha = frame;
+            break;
+          }
+        } catch (error) {
+
+        }
+      }
+    }
+
     // console.log(frame.url())
     // frames.map(item=>{console.log(item.url())})
     // const captcha = await page.waitForSelector('div#checkbox', { visible: true });
     // await captcha.click();
-    await frames[frames.length - 1].click('div#checkbox')
+    await hcaptcha.click('div#checkbox')
     await page.waitForSelector(
       'input[placeholder^="6"]',
       { timeout: 0, visible: true }
@@ -106,7 +122,7 @@ const loginDiscord = async (i) => {
     ]);
     // }
     // const setting = await page.waitForSelector('button[aria-label="User Settings"],button[aria-label="用户设置"]');
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(5000)
     // await page.keyboard.press('Escape')
     // await page.waitForTimeout(1000)
     // await page.keyboard.press('Escape')
@@ -213,7 +229,7 @@ async function main() {
   if (!isAdsActive) return;
 
   // 启动浏览器
-  for (let i = 27; i <= 32; i++) {
+  for (let i = 24; i <= 51; i++) {
     await loginDiscord(i)
   }
 }
@@ -246,7 +262,7 @@ async function changeName1() {
 }
 
 
-invite1()
-// main()
+// invite1()
+main()
 // changeName1()
 

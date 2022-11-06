@@ -1,5 +1,5 @@
 const JsSHA = require('jssha/dist/sha1');
-const { adsPrefix } = require('./config.json');
+const { adsPrefix } = require('./config/config.json');
 
 const decToHex = (dec) => dec.toString(16);
 const hexToDec = (hex) => parseInt(hex, 16);
