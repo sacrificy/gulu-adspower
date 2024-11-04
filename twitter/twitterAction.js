@@ -1,12 +1,13 @@
 const fs = require('fs');
+const { getBrowser } = require('../adspower/adspowerAction');
 
-const twitterData = fs.readFileSync('./config/twitter.txt');
+const twitterData = fs.readFileSync('../config/twitter/twitterAccound.txt');
 const twitterList = twitterData.toString().split('\r\n');
 
-const commentData = fs.readFileSync('./config/comment.txt');
+const commentData = fs.readFileSync('../config/twitter/comment.txt');
 const commentList = commentData.toString().split('\r\n');
 
-const walletData = fs.readFileSync('./config/wallet.txt');
+const walletData = fs.readFileSync('../config/wallet.txt');
 const walletList = walletData.toString().split('\r\n');
 
 function getContent(num, value) {
@@ -53,7 +54,7 @@ async function tweet(page, value) {
 }
 
 async function follow(page, id) {
-  await page.goto(`https://twitter.com/${id}`)
+  // await page.goto(`https://twitter.com/${id}`)
   await page.waitForSelector('div[data-testid*="follow"]', { visible: true })
   await page.keyboard.press('Escape') // special case
   await page.click('div[data-testid*="follow"]')
@@ -77,6 +78,49 @@ async function goto(page, link) {
   await page.reload() //special case
   await page.waitForTimeout(2000)
 }
+
+async function loginTwitter(i) {
+  const accountItem = twitterList[i - 1]
+  // 格式化账密信息
+  let [
+    username,
+    password,
+  ] = accountItem.split('--');
+  console.log(i, username, 'start')
+  const [browser, page] = await getBrowser(i)
+  try {
+    await page.goto('https://twitter.com/i/flow/login')
+    await page.waitForSelector('input[autocomplete="username"]', { visible: true })
+    await page.type('input[autocomplete="username"]', username)
+    await page.keyboard.press('Enter')
+    await page.waitForSelector('input[autocomplete="current-password"]', { visible: true })
+    await page.type('input[autocomplete="current-password"]', password)
+    // await page.keyboard.press('Enter')
+    // await page.waitForSelector('input[autocomplete="email"]', { visible: true })
+    // await page.type('input[autocomplete="email"]', phone)
+    await Promise.all([
+      page.keyboard.press('Enter'),
+      page.waitForNavigation(),
+    ]);
+    await page.waitForTimeout(1000)
+
+    await page.goto('https://twitter.com/settings/password')
+    await page.waitForSelector('input[name="current_password"]', { visible: true })
+    await page.type('input[name="current_password"]', password)
+    await page.waitForSelector('input[name="new_password"]', { visible: true })
+    await page.type('input[name="new_password"]', password + ".")
+    await page.waitForSelector('input[name="password_confirmation"]', { visible: true })
+    await page.type('input[name="password_confirmation"]', password + ".")
+
+
+    // data-testid="settingsDetailSave"
+
+    console.log(i, username, 'success')
+  } catch (error) {
+    console.log(i, username, 'fail')
+    console.log(error)
+  }
+};
 
 async function twitter(browser, page, curAcrionList) {
   for (let i = 0; i < curAcrionList.length; i++) {
@@ -105,5 +149,10 @@ async function twitter(browser, page, curAcrionList) {
 }
 
 module.exports = {
-  twitter: twitter
+  loginTwitter,
+  tweet,
+  like,
+  retweet,
+  follow,
+  twitter
 };
